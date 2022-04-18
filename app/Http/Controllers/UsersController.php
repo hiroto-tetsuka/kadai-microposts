@@ -82,4 +82,16 @@ class UsersController extends Controller
             'users' => $followers,
         ]);
     }
+    public function favorites($id)
+    {
+        $user = User::findOrFail($id);
+
+        // ユーザがいいねした投稿を表示
+        $favorites = $user->favorites()->paginate(10);
+
+        // いいねした投稿をビューで表示
+        return view('users.favorites', [
+            'favorites' => $favorites,
+        ]);
+    }
 }
