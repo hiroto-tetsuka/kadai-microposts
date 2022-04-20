@@ -5,7 +5,7 @@ namespace App;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use App\Favorites;
+// use App\Favorites;
 
 class User extends Authenticatable
 {
@@ -144,11 +144,9 @@ class User extends Authenticatable
         if ($exist == true) {
             return;
         }else{
-            
             $favoritesModel = new Favorites();
             $favoritesModel->user_id = $user_id;
             $favoritesModel->micropost_id = $micropost_id;
-            dd($favoritesModel);
             $favoritesModel->save();
             return;
         }
@@ -158,46 +156,37 @@ class User extends Authenticatable
         $exist = $this->is_favorite($micropost_id);
         if ($exist == true) {
             $favoritesModel = new Favorites();
-            $favoritesModel->user_id = $user_id;
-            $favoritesModel->micropost_id = $micropost_id;
-            $favoritesModel->save();
+            $favoritesModel->where('user_id', $user_id)
+            ->where('micropost_id', $micropost_id)->delete();
             return;
         }else{
             return;
         }
     }
 
-
-
-
-
-
-
-
-
     public function favorites()
     {
-        return $this->belongsToMany(User::class, 'favorites', 'user_id', 'micropost_id')->withTimestamps();
+        return $this->belongsToMany(Micropost::class, 'favorites', 'user_id', 'micropost_id')->withTimestamps();
     }
     
-    public function favorite($user_id, $micropost_id)
+    public function favorite($micropost_id)
     {
-        $exist = $this->is_favorite($user_id);
+        $exist = $this->is_favorite($micropost_id);
 
         if ($exist) {
             return false;
         } else {
-            $this->favorites()->attach($user_id);
+            $this->favorites()->attach($micropost_id);
             return true;
          }
 
     }
-    public function unfavorite()
+    public function unfavorite($micropost_id)
     {
-        $exist = $this->is_favorite($user_id);
+        $exist = $this->is_favorite($micropost_id);
 
         if ($exist) {
-            $this->favorites()->detach($user_id);
+            $this->favorites()->detach($micropost_id);
             return true;
         } else {
             return false;
