@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 
 use App\User;
+use App\Favorites;
 
 class UsersController extends Controller
 {
@@ -84,14 +85,20 @@ class UsersController extends Controller
     }
     public function favorites($id)
     {
+        $user = [];
+        // idの値でいいねした投稿を探して取得
         $user = User::findOrFail($id);
 
+        // いいね一覧を取得
+        $user->loadRelationshipCounts();
+
         // ユーザがいいねした投稿を表示
-        $favorites = $user->favorites()->paginate(10);
+        $microposts = $user->feed_favorites()->paginate(10);
 
         // いいねした投稿をビューで表示
         return view('users.favorites', [
-            'favorites' => $favorites,
+            'user' => $user,
+            'microposts' => $microposts,
         ]);
     }
 }

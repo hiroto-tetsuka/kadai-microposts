@@ -24,7 +24,7 @@ class CreateFavoritesTable extends Migration
             $table->foreign('micropost_id')->references('id')->on('microposts')->onDelete('cascade');
 
             // user_idとfollow_idの組み合わせの重複を許さない
-            //$table->unique(['user_id', 'micropost_id']);
+            $table->unique(['user_id', 'micropost_id']);
         });
     }
 

@@ -5,7 +5,7 @@ namespace App;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-// use App\Favorites;
+//use App\Favorites;
 
 class User extends Authenticatable
 {
@@ -136,6 +136,14 @@ class User extends Authenticatable
         // それらのユーザが所有する投稿に絞り込む
         return Micropost::whereIn('user_id', $userIds);
     }
+    
+        public function feed_favorites()
+    {
+        // このユーザがフォロー中のユーザのidを取得して配列にする
+        $favoriteIds = $this->favorites()->pluck('microposts.id')->toArray();
+
+        return Micropost::whereIn('id', $favoriteIds);
+    }
 
     public function saveFavorite($user_id, $micropost_id)
     {
@@ -168,30 +176,31 @@ class User extends Authenticatable
     {
         return $this->belongsToMany(Micropost::class, 'favorites', 'user_id', 'micropost_id')->withTimestamps();
     }
-    
-    public function favorite($micropost_id)
-    {
-        $exist = $this->is_favorite($micropost_id);
 
-        if ($exist) {
-            return false;
-        } else {
-            $this->favorites()->attach($micropost_id);
-            return true;
-         }
+    // public function favorite($micropost_id)
+    // {
+    //     $exist = $this->is_favorite($micropost_id);
 
-    }
-    public function unfavorite($micropost_id)
-    {
-        $exist = $this->is_favorite($micropost_id);
+    //     if ($exist) {
+    //         return false;
+    //     } else {
+    //         $this->favorites()->attach($micropost_id);
+    //         return true;
+    //      }
 
-        if ($exist) {
-            $this->favorites()->detach($micropost_id);
-            return true;
-        } else {
-            return false;
-        }
-    }
+    // }
+    // public function unfavorite($micropost_id)
+    // {
+    //     $exist = $this->is_favorite($micropost_id);
+
+    //     if ($exist) {
+    //         $this->favorites()->detach($micropost_id);
+    //         return true;
+    //     } else {
+    //         return false;
+    //     }
+    // }
+
     // すでにお気に入り済みか確認
     // レコードが存在する場合は true を返し、レコードが存在しなければ false
     public function is_favorite($micropost_id)
